@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual de Usuario | Simulador de Carga de Trabajo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">← Volver al Inicio</a>
+      <span class="navbar-text text-white">Manual de Usuario</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="mb-4">📘 Manual de Usuario</h2>
+    <p>
+      Este simulador estima la carga de trabajo diaria de los analistas en un sistema de facturación, tomando en cuenta el crecimiento de clientes, la cantidad de días hábiles, la capacidad del personal y el porcentaje de cuentas que requieren revisión manual.
+    </p>
+
+    <h5>🔹 Variables de Entrada</h5>
+    <ul>
+      <li><strong>Clientes Iniciales:</strong> total de clientes al comenzar la simulación.</li>
+      <li><strong>Crecimiento Mensual (%):</strong> tasa de incremento mensual del total de clientes.</li>
+      <li><strong>Días de Facturación:</strong> cantidad de días laborables en un mes.</li>
+      <li><strong>Número de Analistas:</strong> cantidad de personas disponibles para analizar cuentas. <strong>(opcional)</strong></li>
+      <li><strong>% en Revisión:</strong> porcentaje de cuentas que requieren validación manual.</li>
+      <li><strong>Capacidad por Analista:</strong> mínimo y máximo de cuentas que un analista puede revisar al día.</li>
+      <li><strong>Años a Simular:</strong> período total de simulación.</li>
+    </ul>
+
+    <h5>🔹 Diccionario de Variables</h5>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Variable</th>
+          <th>Descripción</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>\( C_0 \)</td>
+          <td>Cantidad de clientes al inicio de la simulación</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( g \)</td>
+          <td>Tasa de crecimiento mensual</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( d \)</td>
+          <td>Número de días laborales por mes</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( a \)</td>
+          <td>Número de analistas disponibles (o calculado si se deja en blanco)</td>
+          <td>Entrada / Salida</td>
+        </tr>
+        <tr>
+          <td>\( p \)</td>
+          <td>Porcentaje de cuentas que requieren revisión</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( \text{LIM}_{\min}, \text{LIM}_{\max} \)</td>
+          <td>Límites inferior y superior de carga diaria por analista</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( Y \)</td>
+          <td>Cantidad de años a simular</td>
+          <td>Entrada</td>
+        </tr>
+        <tr>
+          <td>\( C_m \)</td>
+          <td>Clientes estimados en el mes \( m \)</td>
+          <td>Proceso</td>
+        </tr>
+        <tr>
+          <td>\( R_m \)</td>
+          <td>Cuentas estimadas para revisión en el mes \( m \)</td>
+          <td>Proceso</td>
+        </tr>
+        <tr>
+          <td>\( L_m \)</td>
+          <td>Carga diaria por analista en el mes \( m \)</td>
+          <td>Salida</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <h5>🔹 Modelo Matemático</h5>
+    <p>
+      El modelo está basado en la evolución del número de clientes y la carga de trabajo asociada. El sistema calcula:
+    </p>
+
+    <p><strong>1. Crecimiento de clientes por mes:</strong></p>
+    <p>
+      \[
+      C_m = C_0 \cdot (1 + g)^m
+      \]
+    </p>
+
+    <p><strong>2. Cuentas que requieren revisión manual:</strong></p>
+    <p>
+      \[
+      R_m = C_m \cdot p
+      \]
+    </p>
+
+    <p><strong>3. Carga por analista (por día):</strong></p>
+    <p>
+      \[
+      L_m = \left\lceil \frac{R_m}{a \cdot d} \right\rceil
+      \]
+      Se usa función techo para evitar subestimar la carga.
+    </p>
+
+    <p>
+      El sistema compara \( L_m \) con los límites de capacidad por analista. Si excede el máximo, se considera sobrecarga; si está por debajo del mínimo, refleja exceso de personal.
+    </p>
+
+    <h5>🔹 Funcionamiento Inteligente</h5>
+
+    <p><strong>4. Número de analistas óptimo (Si este se deja en blanco)</strong></p>
+    <p>
+      \[
+      a = \left\lceil \frac{R_{\text{máx}}}{\text{LIM}_{\max} \cdot d} \right\rceil
+      \]
+    </p>
+
+    <p>
+      Si el campo <strong>número de analistas</strong> se deja vacío, el sistema realiza un <em>despeje automático</em> de la fórmula y calcula la cantidad mínima de analistas necesarios para que no se exceda la carga máxima definida.
+    </p>
+
+    <h5>🔹 Cómo Usar el Simulador</h5>
+    <ol>
+      <li>Ingrese los parámetros en el formulario. Puede dejar en blanco el campo de analistas para que el sistema lo calcule.</li>
+      <li>Presione <strong>Simular</strong>.</li>
+      <li>Revise los resultados por mes y la gráfica generada.</li>
+      <li>Use el botón <i>✏️Editar</i> del historial para modificar simulaciones anteriores.</li>
+      <li>Compare distintas simulaciones visualmente en el gráfico (cada una con un color distinto).</li>
+      <li>Puede usar el botón <strong>Limpiar Campos</strong> para reiniciar el formulario.</li>
+    </ol>
+
+    De igual forma se muestra un video tutorial explicando los pasos anteriores:
+    <div class="text-center my-4">
+      <h5>🎥 Video Tutorial del Simulador</h5>
+      <iframe width="100%" style="max-width: 720px; height: 405px;"
+        src="https://www.youtube.com/embed/TZyixkFYX8I"
+        title="Video Tutorial"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+
+    </div>
+
+    <h5>🔹 Resultados</h5>
+    <p>
+      Los resultados incluyen:
+      <ul>
+        <li>Clientes por mes</li>
+        <li>Cuentas a revisión</li>
+        <li>Carga diaria por analista</li>
+        <li>Verificación de si se excede o no la capacidad</li>
+      </ul>
+      Además, los datos se grafican dinámicamente y se almacenan en un historial para futura consulta, edición y comparaciones.
+    </p>
+  </div>
+
+  <footer class="bg-white text-center text-muted py-3 mt-5 border-top">
+    Proyecto académico - Teoría de la Simulación | Manual de Usuario
+  </footer>
+
+</body>
+</html>
